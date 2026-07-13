@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #fdfbf7; }
+    #plant { font-size: 80px; margin: 20px; }
+    #attempts { font-size: 30px; margin: 10px; min-height: 40px; }
+    .highlight { animation: pulse 0.5s; color: #ff6347; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+  </style>
+</head>
+<body>
+  <h2>영어 단어 식물 키우기</h2>
+  <div id="plant">🌱</div>
+  <div id="word-display" style="font-size: 24px; margin: 20px;">_ _ _ _ _</div>
+  <div id="attempts"></div>
+
+  <script>
+    let currentWord = "";
+    const stages = ["🌱", "🌿", "🌱", "🍃", "🌸", "🌻", "🌻"];
+    let wrongCount = 0;
+    let maxAttempts = 5;
+
+    function playSound(freq) {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      osc.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.start(); osc.stop(ctx.currentTime + 0.1);
+    }
+
+    function updateAttemptsDisplay(remaining) {
+      const el = document.getElementById('attempts');
+      if (remaining > 0) {
+        el.innerText = "💧".repeat(remaining);
+        el.className = 'highlight';
+        setTimeout(() => el.className = '', 500);
+        playSound(800);
+      } else {
+        el.innerText = "🍂 식물이 잠들었어요.. 다시 도전해볼까요?";
+        document.getElementById('plant').innerText = "💤";
+        playSound(200);
+      }
+    }
+
+    function checkAnswer(input) {
+      if (input.toLowerCase().trim() === currentWord) {
+        alert("정답이에요!");
+        playSound(800);
+      } else {
+        wrongCount++;
+        const remaining = maxAttempts - wrongCount;
+        updateAttemptsDisplay(remaining);
+        if (remaining > 0) document.getElementById('plant').innerText = stages[wrongCount] || "🌻";
+      }
+    }
+
+    function initGame(wordObj) {
+      currentWord = wordObj.word.toLowerCase();
+      const len = currentWord.length;
+      maxAttempts = (len <= 4) ? 5 : (len <= 7) ? 6 : 7;
+      updateAttemptsDisplay(maxAttempts);
+    }
+  </script>
+</body>
+</html>
